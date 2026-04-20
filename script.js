@@ -297,13 +297,13 @@ function initBarrierDemo() {
 
   slider.addEventListener("input", () => {
     const val = parseInt(slider.value);
-    valueLabel.textContent = val < 10 ? "OFF" : val + "%";
+    valueLabel.textContent = val < 10 ? "3D ON" : val + "%";
     draw(val);
   });
 
   // Start with barrier disabled
   slider.value = 0;
-  valueLabel.textContent = "OFF";
+  valueLabel.textContent = "3D OFF";
   draw(0);
 }
 
