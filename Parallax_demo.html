@@ -1,0 +1,211 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Parallax Barrier — Improved Top‑Down Demo</title>
+<style>
+  body { font-family: system-ui, Arial; margin:18px; color:#111; }
+  h3 { margin:0 0 10px 0; }
+  #controls { display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:10px; }
+  .ctrl { display:flex; gap:6px; align-items:center; }
+  .val { width:48px; text-align:right; padding:4px; background:#f0f0f0; border-radius:4px; font-size:13px; }
+  canvas { background:#fff; border:1px solid #ccc; display:block; }
+  button { padding:6px 10px; }
+  small { color:#666; display:block; margin-top:6px; }
+</style>
+</head>
+<body>
+<h3>Parallax Barrier — Improved Top‑Down Demo</h3>
+
+<div id="controls">
+  <div class="ctrl"><label>Slit width</label><input id="slitW" type="range" min="2" max="80" value="14"><span id="slitWVal" class="val">14</span></div>
+  <div class="ctrl"><label>Slit pitch</label><input id="pitch" type="range" min="12" max="160" value="48"><span id="pitchVal" class="val">48</span></div>
+  <div class="ctrl"><label>Slit offset</label><input id="offset" type="range" min="-200" max="200" value="0"><span id="offsetVal" class="val">0</span></div>
+  <div class="ctrl"><label>Barrier distance</label><input id="bDist" type="range" min="40" max="300" value="140"><span id="bDistVal" class="val">140</span></div>
+  <div class="ctrl"><label>Eye separation</label><input id="eyes" type="range" min="20" max="220" value="80"><span id="eyesVal" class="val">80</span></div>
+  <div class="ctrl"><label>Pixel width</label><input id="pixW" type="range" min="8" max="80" value="40"><span id="pixWVal" class="val">40</span></div>
+  <button id="anim">Animate</button>
+</div>
+
+<canvas id="canvas" width="820" height="420"></canvas>
+<small>Top‑down: pixels at bottom (narrow screen), barrier in middle, eyes at top. Rays colored by pixel; solid when they pass through a slit.</small>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+const slitW = document.getElementById('slitW');
+const pitch = document.getElementById('pitch');
+const offset = document.getElementById('offset');
+const bDist = document.getElementById('bDist');
+const eyes = document.getElementById('eyes');
+const pixW = document.getElementById('pixW');
+
+const slitWVal = document.getElementById('slitWVal');
+const pitchVal = document.getElementById('pitchVal');
+const offsetVal = document.getElementById('offsetVal');
+const bDistVal = document.getElementById('bDistVal');
+const eyesVal = document.getElementById('eyesVal');
+const pixWVal = document.getElementById('pixWVal');
+
+const animBtn = document.getElementById('anim');
+let anim = false, t = 0;
+
+[slitW,pitch,offset,bDist,eyes,pixW].forEach(el => el.addEventListener('input', draw));
+animBtn.addEventListener('click', () => { anim = !anim; animBtn.textContent = anim ? 'Stop' : 'Animate'; if(!anim) t = 0; requestAnimationFrame(loop); });
+
+function draw(){
+  // update labels
+  slitWVal.textContent = slitW.value;
+  pitchVal.textContent = pitch.value;
+  offsetVal.textContent = offset.value;
+  bDistVal.textContent = bDist.value;
+  eyesVal.textContent = eyes.value;
+  pixWVal.textContent = pixW.value;
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  const W = canvas.width, H = canvas.height;
+  const margin = 48;
+
+  // layout positions
+  const pixelsY = H - margin - 18;      // pixel strip (bottom)
+  const eyesY = margin + 18;            // eyes (top)
+  // barrierY computed from barrier distance (distance measured from pixel strip upward)
+  const barrierY = pixelsY - parseInt(bDist.value);
+  // clamp barrierY between eyes and pixels
+  const minBarrier = eyesY + 20;
+  const maxBarrier = pixelsY - 20;
+  const barrierYclamped = Math.max(minBarrier, Math.min(maxBarrier, barrierY));
+
+  // draw guide lines
+  ctx.strokeStyle = '#eee';
+  ctx.beginPath(); ctx.moveTo(0, pixelsY+12); ctx.lineTo(W, pixelsY+12); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, barrierYclamped); ctx.lineTo(W, barrierYclamped); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, eyesY-12); ctx.lineTo(W, eyesY-12); ctx.stroke();
+
+  // narrow screen: explicit width and centered
+  const screenWidth = 360;
+  const screenStartX = (W - screenWidth) / 2;
+  const pixelWidth = parseInt(pixW.value);
+  const pixelCount = Math.max(2, Math.floor(screenWidth / pixelWidth));
+  const actualScreenWidth = pixelCount * pixelWidth;
+  const startX = screenStartX + (screenWidth - actualScreenWidth)/2;
+
+  // draw pixel columns (wider pixels)
+  const pixelColors = [];
+  for(let i=0;i<pixelCount;i++){
+    const x = startX + i * pixelWidth;
+    const color = (i % 2 === 0) ? '#e74c3c' : '#3498db';
+    pixelColors.push(color);
+    ctx.fillStyle = color;
+    ctx.fillRect(x, pixelsY - 22, pixelWidth - 1, 44);
+    ctx.fillStyle = 'rgba(0,0,0,0.12)';
+    ctx.font = '10px system-ui';
+    ctx.fillText(i, x + 6, pixelsY - 6);
+  }
+
+  // eyes positions (centered)
+  const eyeSep = parseInt(eyes.value);
+  const leftEyeX = W/2 - eyeSep/2;
+  const rightEyeX = W/2 + eyeSep/2;
+  ctx.fillStyle = '#000';
+  ctx.beginPath(); ctx.arc(leftEyeX, eyesY, 10, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(rightEyeX, eyesY, 10, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.font = '12px system-ui'; ctx.fillText('L', leftEyeX-4, eyesY+4); ctx.fillText('R', rightEyeX-4, eyesY+4);
+
+  // compute periodic slit centers along X
+  const slitPitch = parseInt(pitch.value);
+  const slitOffset = parseInt(offset.value);
+  // center reference for periodic pattern
+  const centerRef = W/2 + slitOffset;
+  const slitCenters = [];
+  // generate centers across canvas
+  for(let cx = centerRef - 2000; cx <= centerRef + 2000; cx += slitPitch){
+    slitCenters.push(cx);
+  }
+
+  // draw barrier band
+  const barrierBandH = 12;
+  ctx.fillStyle = '#222';
+  ctx.fillRect(0, barrierYclamped - barrierBandH/2, W, barrierBandH);
+
+  // clear slits (destination-out) so they appear as openings
+  const sW = parseInt(slitW.value);
+  ctx.save();
+  ctx.globalCompositeOperation = 'destination-out';
+  for(const cx of slitCenters){
+    ctx.fillStyle = 'rgba(0,0,0,1)';
+    ctx.fillRect(cx - sW/2, barrierYclamped - barrierBandH/2 - 2, sW, barrierBandH + 4);
+  }
+  ctx.restore();
+
+  // outline slits
+  ctx.strokeStyle = '#444';
+  for(const cx of slitCenters){
+    ctx.strokeRect(cx - sW/2, barrierYclamped - barrierBandH/2 - 2, sW, barrierBandH + 4);
+  }
+
+  // For each pixel, compute intersection with barrier and test against periodic slits.
+  // If intersection X falls within any slit opening, the ray is allowed.
+  for(let i=0;i<pixelCount;i++){
+    const px = startX + i * pixelWidth + pixelWidth/2;
+    const py = pixelsY;
+    // target eye alternation: even -> left, odd -> right
+    const targetX = (i % 2 === 0) ? leftEyeX : rightEyeX;
+    const targetY = eyesY;
+    // compute t where y = barrierYclamped
+    if (Math.abs(targetY - py) < 1e-6) continue;
+    const tParam = (barrierYclamped - py) / (targetY - py);
+    if (tParam <= 0 || tParam >= 1) continue;
+    const ix = px + (targetX - px) * tParam;
+
+    // check if ix falls within any periodic slit
+    // compute nearest slit center by rounding
+    const k = Math.round((ix - centerRef) / slitPitch);
+    const nearestCenter = centerRef + k * slitPitch;
+    const passes = Math.abs(ix - nearestCenter) <= sW/2 + 0.5;
+
+    // draw ray: colored and thicker if passes, faint otherwise
+    ctx.beginPath();
+    ctx.moveTo(px, py);
+    ctx.lineTo(ix, barrierYclamped);
+    ctx.lineTo(targetX, targetY);
+    ctx.strokeStyle = passes ? pixelColors[i] : 'rgba(0,0,0,0.08)';
+    ctx.lineWidth = passes ? 2.6 : 1.0;
+    ctx.stroke();
+
+    // mark intersection point
+    ctx.beginPath();
+    ctx.arc(ix, barrierYclamped, passes ? 4 : 1.5, 0, Math.PI*2);
+    ctx.fillStyle = passes ? pixelColors[i] : 'rgba(0,0,0,0.12)';
+    ctx.fill();
+  }
+
+  // legend
+  ctx.fillStyle = '#e74c3c'; ctx.fillRect(12, H-36, 12, 12); ctx.fillStyle='#111'; ctx.fillText('Left-eye pixels (red)', 30, H-26);
+  ctx.fillStyle = '#3498db'; ctx.fillRect(220, H-36, 12, 12); ctx.fillStyle='#111'; ctx.fillText('Right-eye pixels (blue)', 240, H-26);
+  ctx.fillStyle = '#111'; ctx.font = '11px system-ui'; ctx.fillText('Screen width: ' + screenWidth + ' px', W-220, H-26);
+}
+
+function loop(ts){
+  if(anim){
+    t += 0.03;
+    // animate eye separation and slit offset to show sensitivity
+    const baseSep = 80;
+    eyes.value = Math.round(baseSep + Math.sin(t) * 40);
+    eyesVal.textContent = eyes.value;
+    // slowly sweep slit offset
+    offset.value = Math.round(Math.sin(t*0.6) * 120);
+    offsetVal.textContent = offset.value;
+    draw();
+    requestAnimationFrame(loop);
+  } else {
+    draw();
+  }
+}
+
+// initial draw
+draw();
+</script>
+</body>
+</html>

@@ -1,91 +1,662 @@
-body {
-    background-color: #fafafa;
-    font-family: sans-serif;
-    margin: 0px;
-    padding: 0px;
+/* ============================================================
+   3DS-ERA VISUAL THEME — Light mode, Red & White, 2010s aesthetic
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;800&family=Source+Sans+3:ital,wght@0,400;0,600;1,400&display=swap');
+
+/* ---------- RESET & BASE ---------- */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
 }
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #f0eff2;
+    background-image:
+        radial-gradient(ellipse at 12% 35%, rgba(180, 0, 0, 0.04) 0%, transparent 55%),
+        radial-gradient(ellipse at 88% 8%, rgba(180, 0, 0, 0.03) 0%, transparent 40%),
+        radial-gradient(ellipse at 50% 95%, rgba(120, 0, 0, 0.03) 0%, transparent 50%);
+    font-family: 'Source Sans 3', 'Segoe UI', Helvetica, Arial, sans-serif;
+    color: #2a2a32;
+    -webkit-font-smoothing: antialiased;
+
+    cursor: none;
+}
+
+
+
+/* ---------- SIDE NAV ---------- */
+
+.side-nav {
+    position: fixed;
+    right: calc(50% + 350px + 16px);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    width: 220px;
+    text-align: right;
+    border-right: 3px solid #cc1100;
+}
+
+.nav-chip {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 10px 16px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.chip-num {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #bbb;
+    order: 2;
+    transition: color 0.3s;
+}
+
+.chip-title {
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: #999;
+    order: 1;
+    white-space: normal;
+    transition: color 0.3s, font-size 0.3s;
+}
+
+/* Passed state — stacks up compact */
+.nav-chip.passed {
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+.nav-chip.passed .chip-num {
+    color: #cc1100;
+}
+
+.nav-chip.passed .chip-title {
+    color: #999;
+    font-size: 14px;
+}
+
+/* Active state */
+.nav-chip.active {
+    background-color: rgba(200, 15, 0, 0.04);
+}
+
+.nav-chip.active .chip-num {
+    color: #cc1100;
+}
+
+.nav-chip.active .chip-title {
+    color: #1a1a22;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+/* Upcoming state */
+.nav-chip.upcoming {
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.nav-chip.upcoming .chip-title {
+    color: #ccc;
+}
+
+.nav-chip.upcoming .chip-num {
+    color: #ddd;
+}
+
+/* Hover on any chip */
+.nav-chip:hover .chip-title {
+    color: #cc1100;
+}
+
+/* Hide when viewport is too narrow for the sidebar */
+@media (max-width: 1180px) {
+    .side-nav {
+        display: none;
+    }
+}
+
+
+/* ---------- CONTENT WRAPPER ---------- */
 
 .content {
-    max-width: 800px;
+    max-width: 700px;
     margin: 0 auto;
-    margin-top: 0px;
-    padding-top: 1px;
-    border-left: #a3a3a3 solid 1px;
+    border-left: 3px solid #cc1100;
+    border-right: 1px solid #e0dfe4;
+    background-color: #ffffff;
+    box-shadow:
+        0 0 40px rgba(0, 0, 0, 0.06),
+        -4px 0 20px rgba(180, 0, 0, 0.04);
 }
 
 
-/* PARAGRAPH STYLES AND TEXT */
+/* ---------- HERO BANNER ---------- */
 
-@font-face {
-    font-family: Nintendo;
-    src: url('ro-spritendo-font/RoSpritendoSemiboldBeta-vmVwZ.otf');
+.hero {
+    position: relative;
+    overflow: hidden;
+    padding: 80px 40px 55px;
+    background: linear-gradient(
+        168deg,
+        #fff0ee 0%,
+        #ffffff 35%,
+        #f8f8fa 100%
+    );
+    border-bottom: 2px solid rgba(200, 20, 0, 0.35);
 }
 
-h1 {
-    font-size: 65px;
-    max-width: 650px;
-    text-align: left;
-    max-width: 900px;
-    margin: 1em auto;
+.hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.018) 2px,
+            rgba(0, 0, 0, 0.018) 4px
+        );
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.hero-inner {
+    position: relative;
+    z-index: 2;
+}
+
+.hero-3ds {
+    position: absolute;
+    right: -40px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 280px;
+    height: auto;
+    z-index: 1;
+    opacity: 0.2;
+    filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.1));
+}
+
+.hero-text {
+    position: relative;
+    z-index: 2;
+}
+
+@media (max-width: 680px) {
+    .hero-3ds {
+        position: static;
+        display: block;
+        width: 220px;
+        margin: 16px auto 0;
+    }
+}
+
+/* Tag line above title */
+.hero-tag {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #cc1100;
+    margin-bottom: 18px;
+    padding-left: 2px;
+}
+
+/* Title — layered Nintendo-style layout */
+.hero-title {
+    font-family: 'Exo 2', sans-serif;
+    margin: 0;
+    line-height: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.title-big {
+    font-size: clamp(42px, 8vw, 72px);
+    font-weight: 800;
+    line-height: 0.9;
+    color: #1a1a22;
+    letter-spacing: -2px;
+    margin-bottom: 10px;
+}
+
+.title-bottom {
+    font-size: clamp(16px, 2.8vw, 22px);
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #666;
+}
+
+.title-accent {
+    color: #cc1100;
+    font-weight: 800;
+    letter-spacing: 0;
+}
+
+/* Red stripe divider — like a 3DS box art bar */
+.hero-stripe {
+    margin-top: 22px;
+    height: 4px;
+    width: 140px;
+    background: linear-gradient(90deg, #cc1100 0%, #ff3318 50%, transparent 100%);
+    border-radius: 2px;
+    box-shadow: 0 0 12px rgba(200, 15, 0, 0.35);
+}
+
+.hero-scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        180deg,
+        transparent 0px,
+        transparent 3px,
+        rgba(200, 0, 0, 0.012) 3px,
+        rgba(200, 0, 0, 0.012) 6px
+    );
+    pointer-events: none;
+    z-index: 1;
+}
+
+
+/* ---------- ARTICLE SECTIONS ---------- */
+
+.article-section {
+    padding: 0 40px;
+}
+
+.article-section + .article-section {
+    margin-top: 20px;
+    padding-top: 20px;
 }
 
 h2 {
-    color: #333333;
-    font-size: 30px;
-    text-align: left;
-    max-width: 650px;
-    margin: 1em auto; 
+    font-family: 'Exo 2', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    color: #bb1100;
+    letter-spacing: 0.4px;
+    margin: 1.4em 0 0.5em;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(190, 20, 0, 0.2);
 }
 
 p {
-    color: #333333;
-    font-family: sans-serif;
-    font-size: 16px;
-    line-height: 1.5em;
-    max-width: 650px;
-    margin: 1em auto;
+    font-size: 18px;
+    line-height: 1.8;
+    margin: 1em 0;
+    color: #333;
 }
 
 a {
-    text-decoration: underline;
+    color: #cc1100;
+    text-decoration: none;
+    font-weight: 600;
 }
 
+a:hover {
+    color: #ee2200;
+}
+
+.term,
 .newWord {
-    color: navy;
-    font-weight: bold;
+    color: #cc1100;
+    font-weight: 600;
 }
 
 
-/* HEADER BANNER AND STUFF */
+/* ---------- BLOCKQUOTE ---------- */
 
-.DS_banner {
-    background-image: url("images/3DS-blank-transparent.png");
-    background-size: cover;
-    height: 600px;
-    width: 800px;
+.blockquote {
+    border-left: 3px solid #cc1100;
+    padding: 16px 20px;
+    margin: 1.5em 0;
+    background-color: rgba(200, 15, 0, 0.04);
+    border-radius: 0 4px 4px 0;
+    font-style: italic;
+    color: #444;
+    line-height: 1.75;
 }
 
-#bannerText {
-    color: #333333;
+.cite {
+    display: block;
+    margin-top: 8px;
+    font-style: normal;
+    font-size: 14px;
+    color: #888;
+}
+
+
+/* ---------- INTERACTIVE BLOCKS ---------- */
+
+.interactive-block {
+    margin: 2em 0;
+    background-color: #fafafa;
+    border: 1px solid rgba(180, 20, 0, 0.18);
+    border-top: 2px solid rgba(200, 15, 0, 0.45);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.interactive-label {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #bb1100;
+    padding: 10px 16px;
+    background-color: rgba(200, 15, 0, 0.05);
+    border-bottom: 1px solid rgba(180, 20, 0, 0.12);
+}
+
+.interactive-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.interactive-hint {
+    font-size: 16px;
+    color: #555;
+    margin: 0;
+    padding: 12px;
+    line-height: 1.5;
+}
+
+
+/* ---------- BUTTONS ---------- */
+
+.ctrl-btn {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 7px 18px;
+    border: 1px solid rgba(180, 20, 0, 0.25);
+    border-radius: 3px;
+    background: linear-gradient(180deg, #ffffff 0%, #f4f4f6 100%);
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ctrl-btn:hover {
+    border-color: rgba(200, 20, 0, 0.45);
+    color: #333;
+    background: linear-gradient(180deg, #fff 0%, #f0eeef 100%);
+}
+
+.ctrl-btn.active {
+    background: linear-gradient(180deg, #cc1100 0%, #aa0e00 100%);
+    border-color: #dd2200;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 0 10px rgba(200, 10, 0, 0.25);
+}
+
+
+/* ---------- 3D SLIDER (range input) ---------- */
+
+.slider-label {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+    white-space: nowrap;
+}
+
+.ds-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: #e0dfe4;
+    outline: none;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.ds-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #dd2200 0%, #aa0e00 100%);
+    border: 2px solid #ee3300;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(200, 10, 0, 0.35);
+    transition: box-shadow 0.2s;
+}
+
+.ds-slider::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 14px rgba(220, 20, 0, 0.5);
+}
+
+.ds-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #dd2200 0%, #aa0e00 100%);
+    border: 2px solid #ee3300;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(200, 10, 0, 0.35);
+}
+
+.slider-value {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #bb1100;
+    min-width: 36px;
+    text-align: right;
+}
+
+
+/* ---------- DISPARITY FIELD ---------- */
+
+.disparity-field {
     position: relative;
-    max-width: 275px;
-    font-size: 45px;
-    top: 125px;
-    left: 30px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);         
+    width: 100%;
+    height: 280px;
+    background-color: #f5f5f7;
+    overflow: hidden;
+}
+
+.disparity-shape {
+    position: absolute;
+    opacity: 0.85;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.interactive-instructions {
+    padding: 14px 16px 4px;
+}
+
+.interactive-instructions .interactive-hint {
+    margin: 0 0 8px;
 }
 
 
-/* FIGURES AND IMAGES */
+/* ---------- CANVAS VIEWPORTS ---------- */
 
-figure {
+.barrier-viewport {
+    display: flex;
+    justify-content: center;
+    padding: 16px;
+    background-color: #f5f5f7;
+}
+
+.barrier-viewport canvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 2px;
+}
+
+
+/* ---------- PIXEL FIGURE ---------- */
+
+.pixel-figure-wrap {
+    display: flex;
+    justify-content: center;
+    background-color: #f5f5f7;
+    border-radius: 6px;
+    padding: 8px 0;
+}
+
+.pixel-figure-wrap canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+
+/* ---------- PIXEL COMPARISON ---------- */
+
+.pixel-compare {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
 }
 
-#figCaption {
-    max-width: 600px;
+.pixel-compare-row {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.pixel-compare-row:last-child {
+    border-bottom: none;
+}
+
+.pixel-mode-label {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 10px 16px 0;
+}
+
+
+/* ---------- PIXEL GRID ---------- */
+
+.pixel-viewport {
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    gap: 6px;
+    padding: 24px 16px;
+    background-color: #f5f5f7;
+    min-height: 200px;
+    flex-wrap: wrap;
+}
+
+.pixel-col {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    width: 30px;
+    gap: 0px;
+    transition: gap 0.4s ease;
+    flex-wrap: wrap;
+}
+
+.pixel-col .px {
+    height: 26px;
+    border-radius: 1px;
+    transition: background-color 0.4s ease, flex 0.4s ease;
+}
+
+/* 2D merged pair — sub-pixels flush, each takes full width */
+.pixel-col.mode-2d {
+    gap: 0px;
+}
+
+.pixel-col.mode-2d .px {
+    flex: 1 1 100%;
+}
+
+/* 3D split pair — sub-pixels side by side with a gap */
+.pixel-col.mode-3d {
+    gap: 3px;
+}
+
+.pixel-col.mode-3d .px {
+    flex: 1 1 0;
+}
+
+/* Sub-pixel labels */
+.pixel-col-label {
+    font-family: 'Exo 2', sans-serif;
+    font-size: 9px;
+    text-align: center;
+    color: #999;
+    margin-top: 4px;
+    flex-basis: 100%;
+    transition: color 0.3s;
+}
+
+.pixel-col.mode-3d .pixel-col-label {
+    color: #cc1100;
+}
+
+
+/* ---------- FOOTER ---------- */
+
+.site-footer {
+    padding: 30px 40px;
+    border-top: 1px solid rgba(180, 20, 0, 0.12);
+    margin-top: 40px;
+}
+
+.site-footer p {
+    font-size: 13px;
+    color: #999;
+    text-align: center;
+    margin: 0;
+}
+
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 860px) {
+    .content {
+        border-left: none;
+        border-right: none;
+    }
+
+    .article-section {
+        padding: 0 24px;
+    }
+
+    .hero {
+        padding: 60px 24px 40px;
+    }
+
+    .site-footer {
+        padding: 24px;
+    }
 }
