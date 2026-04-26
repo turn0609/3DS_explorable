@@ -63,119 +63,113 @@ function initBarrierDemo() {
   const canvas = document.getElementById("barrier-canvas");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
-  const slider = document.getElementById("barrier-slider");
-  const valueLabel = document.getElementById("barrier-value");
+  const toggle = document.getElementById("barrier-toggle");
+  const label3D = document.getElementById("barrier-3d-label");
 
   function draw(openAmount) {
     const W = canvas.width;
     const H = canvas.height;
-    // Light canvas background
     ctx.fillStyle = "#f5f5f7";
     ctx.fillRect(0, 0, W, H);
 
-    // openAmount=0 means barrier disabled (no barrier visible, all light passes)
-    // openAmount=100 means barrier fully enabled (slits direct light)
-    const barrierFrac = openAmount / 100;  // 0=no barrier, 1=full barrier
+    const barrierFrac = openAmount / 100;
     const numPairs = 5;
-    const pxH = 30;           // height of each sub-pixel
-    const pxW = 18;           // width of each sub-pixel
-    const pairSpacing = 10;   // gap between pixel pairs
-    const pairH = pxH * 2;   // total height of one red+blue pair
-    const stepH = pairH + pairSpacing;
-    const totalH = numPairs * pairH + (numPairs - 1) * pairSpacing;
-    const startY = (H - totalH) / 2 + 10;
+    const pxW = 30;           // width of each sub-pixel (horizontal now)
+    const pxH = 18;           // height of each sub-pixel (vertical now)
+    const pairSpacing = 10;   // gap between pixel pairs (horizontal)
+    const pairW = pxW * 2;    // total width of one red+blue pair
+    const stepW = pairW + pairSpacing;
+    const totalW = numPairs * pairW + (numPairs - 1) * pairSpacing;
+    const startX = (W - totalW) / 2;
 
-    const pixelX = 40;        // left edge of pixel column
-    const barrierX = 140;     // x position of barrier (closer to pixels)
-    const barrierW = 6;       // width of barrier blocks
-    const eyeX = W - 40;      // x position of eyes (further right)
-    const rightEyeY = H * 0.22;
-    const leftEyeY = H * 0.78;
+    const pixelY = 40;        // top edge of pixel row
+    const barrierY = 140;     // y position of barrier (closer to pixels)
+    const barrierH = 6;       // thickness of barrier blocks
+    const eyeY = H - 90;      // y position of eyes (near bottom)
+    const leftEyeX = W * 0.22;
+    const rightEyeX = W * 0.78;
+    const destEyeY = eyeY - 15;
 
     // --- Labels ---
-    ctx.fillStyle = "#222";
     ctx.font = "bold 14px 'Exo 2', sans-serif";
-    ctx.fillText("Pixels", pixelX, startY - 18);
-    ctx.fillText("Parallax Barrier", barrierX - 30, startY - 18);
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#222";
+    ctx.fillText("Pixels", startX, pixelY - 8);
+    if (barrierFrac > 0.01) {
+      ctx.fillStyle = `rgba(34,34,34,${Math.min(1, barrierFrac)})`;
+      ctx.fillText("Parallax Barrier", startX, barrierY - 8);
+    }
 
-    // --- Draw pixel column (vertical, left side) ---
-    // Each pair: red on top, blue on bottom, touching with no gap
+    // --- Draw pixel row (horizontal, top) ---
+    // Each pair: blue on left, red on right (CW-rotation of original red-top, blue-bottom)
     const pxCenters = [];
     for (let i = 0; i < numPairs; i++) {
-      const y = startY + i * stepH;
-      // Left-image pixel (red/salmon)
-      ctx.fillStyle = "rgba(180,40,40,0.95)";
-      ctx.fillRect(pixelX, y, pxW, pxH);
-      // Right-image pixel (blue)
+      const x = startX + i * stepW;
+      // Right-image pixel (blue) — left half
       ctx.fillStyle = "rgba(30,80,180,0.95)";
-      ctx.fillRect(pixelX, y + pxH, pxW, pxH);
+      ctx.fillRect(x, pixelY, pxW, pxH);
+      // Left-image pixel (red) — right half
+      ctx.fillStyle = "rgba(180,40,40,0.95)";
+      ctx.fillRect(x + pxW, pixelY, pxW, pxH);
 
       pxCenters.push({
-        redY: y + pxH / 2,
-        blueY: y + pxH + pxH / 2,
-        pairCenterY: y + pxH,  // boundary between red and blue
-        x: pixelX + pxW
+        blueX: x + pxW / 2,
+        redX: x + pxW + pxW / 2,
+        y: pixelY + pxH
       });
     }
 
     // --- Compute slit positions from ray geometry ---
-    // "Good" rays: red→leftEye, blue→rightEye should pass through.
-    // For each pair, find where those good rays cross barrierX,
-    // then the slit spans between those two y-values.
-    const destEyeX = eyeX - 15;
-
-    function yAtX(x1, y1, x2, y2, targetX) {
-      const t = (targetX - x1) / (x2 - x1);
-      return y1 + t * (y2 - y1);
+    function xAtY(x1, y1, x2, y2, targetY) {
+      const t = (targetY - y1) / (y2 - y1);
+      return x1 + t * (x2 - x1);
     }
 
     const slitRanges = pxCenters.map(pc => {
-      const redGoodY = yAtX(pc.x, pc.redY, destEyeX, leftEyeY, barrierX);
-      const blueGoodY = yAtX(pc.x, pc.blueY, destEyeX, rightEyeY, barrierX);
+      const redGoodX = xAtY(pc.redX, pc.y, leftEyeX, destEyeY, barrierY);
+      const blueGoodX = xAtY(pc.blueX, pc.y, rightEyeX, destEyeY, barrierY);
       return {
-        top: Math.min(redGoodY, blueGoodY),
-        bottom: Math.max(redGoodY, blueGoodY)
+        left: Math.min(redGoodX, blueGoodX),
+        right: Math.max(redGoodX, blueGoodX)
       };
     });
 
-    function isInSlit(y) {
-      for (const s of slitRanges) {
-        if (y >= s.top && y <= s.bottom) return true;
-      }
-      return false;
-    }
-
     // --- Compute barrier block regions (everywhere NOT a slit) ---
-    const topEdge = startY;
-    const bottomEdge = startY + totalH;
+    const leftEdge = startX;
+    const rightEdge = startX + totalW;
     const shrink = 3;
 
     const barrierBlocks = [];
-    // Top cap
-    barrierBlocks.push({ top: topEdge + shrink, bottom: slitRanges[0].top });
-    // Blocks between slits
+    barrierBlocks.push({ left: leftEdge + shrink, right: slitRanges[0].left });
     for (let i = 0; i < numPairs - 1; i++) {
-      barrierBlocks.push({ top: slitRanges[i].bottom + shrink, bottom: slitRanges[i + 1].top - shrink });
+      barrierBlocks.push({ left: slitRanges[i].right + shrink, right: slitRanges[i + 1].left - shrink });
     }
-    // Bottom cap
-    barrierBlocks.push({ top: slitRanges[numPairs - 1].bottom + shrink, bottom: bottomEdge - shrink });
+    barrierBlocks.push({ left: slitRanges[numPairs - 1].right + shrink, right: rightEdge - shrink });
 
     // --- Draw barrier blocks growing from center ---
     if (barrierFrac > 0.01) {
       ctx.fillStyle = "#1a1a24";
       for (const block of barrierBlocks) {
-        const fullH = block.bottom - block.top;
-        const centerY = (block.top + block.bottom) / 2;
-        const drawH = fullH * barrierFrac;
-        if (drawH > 0.5) {
-          ctx.fillRect(barrierX, centerY - drawH / 2, barrierW, drawH);
+        const fullW = block.right - block.left;
+        const centerX = (block.left + block.right) / 2;
+        const drawW = fullW * barrierFrac;
+        if (drawW > 0.5) {
+          ctx.fillRect(centerX - drawW / 2, barrierY, drawW, barrierH);
         }
       }
     }
 
-    // --- Draw eyes (right side) ---
-    drawEye(ctx, eyeX, rightEyeY, "#1a1a24", "Right");
-    drawEye(ctx, eyeX, leftEyeY, "#1a1a24", "Left");
+    // --- Draw eyes (bottom) ---
+    drawEye(ctx, leftEyeX, eyeY, "#1a1a24");
+    drawEye(ctx, rightEyeX, eyeY, "#1a1a24");
+
+    // Eye labels
+    ctx.fillStyle = "#222";
+    ctx.font = "bold 13px 'Exo 2', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Left Eye", leftEyeX, eyeY + 32);
+    ctx.fillText("Right Eye", rightEyeX, eyeY + 32);
+    ctx.textAlign = "left";
 
     // --- Light rays ---
     ctx.lineWidth = 1.5;
@@ -187,123 +181,127 @@ function initBarrierDemo() {
       ctx.globalAlpha = 0.45;
       ctx.strokeStyle = "rgba(180,30,30,0.8)";
       ctx.beginPath();
-      ctx.moveTo(pc.x, pc.redY);
-      ctx.lineTo(destEyeX, leftEyeY);
+      ctx.moveTo(pc.redX, pc.y);
+      ctx.lineTo(leftEyeX, destEyeY);
       ctx.stroke();
 
       // BLUE pixel → Right eye (GOOD — always passes through slit)
       ctx.strokeStyle = "rgba(20,70,180,0.8)";
       ctx.beginPath();
-      ctx.moveTo(pc.x, pc.blueY);
-      ctx.lineTo(destEyeX, rightEyeY);
+      ctx.moveTo(pc.blueX, pc.y);
+      ctx.lineTo(rightEyeX, destEyeY);
       ctx.stroke();
 
-      // Helper: check if a y-value at the barrier hits a grown block
-      function hitsBarrier(rayY) {
+      // Helper: check if an x-value at the barrier hits a grown block
+      function hitsBarrier(rayX) {
         for (const block of barrierBlocks) {
-          const fullH = block.bottom - block.top;
-          const centerY = (block.top + block.bottom) / 2;
-          const drawH = fullH * barrierFrac;
-          if (rayY >= centerY - drawH / 2 && rayY <= centerY + drawH / 2) return true;
+          const fullW = block.right - block.left;
+          const centerX = (block.left + block.right) / 2;
+          const drawW = fullW * barrierFrac;
+          if (rayX >= centerX - drawW / 2 && rayX <= centerX + drawW / 2) return true;
         }
         return false;
       }
 
-      // RED pixel → Right eye
-      const redBadY = yAtX(pc.x, pc.redY, destEyeX, rightEyeY, barrierX);
-      if (hitsBarrier(redBadY)) {
+      // RED pixel → Right eye (BAD)
+      const redBadX = xAtY(pc.redX, pc.y, rightEyeX, destEyeY, barrierY);
+      if (hitsBarrier(redBadX)) {
         ctx.globalAlpha = 0.3;
         ctx.strokeStyle = "rgba(180,30,30,0.55)";
         ctx.beginPath();
-        ctx.moveTo(pc.x, pc.redY);
-        ctx.lineTo(barrierX, redBadY);
+        ctx.moveTo(pc.redX, pc.y);
+        ctx.lineTo(redBadX, barrierY);
         ctx.stroke();
       } else {
         ctx.globalAlpha = 0.35;
         ctx.strokeStyle = "rgba(180,30,30,0.55)";
         ctx.beginPath();
-        ctx.moveTo(pc.x, pc.redY);
-        ctx.lineTo(destEyeX, rightEyeY);
+        ctx.moveTo(pc.redX, pc.y);
+        ctx.lineTo(rightEyeX, destEyeY);
         ctx.stroke();
       }
 
-      // BLUE pixel → Left eye
-      const blueBadY = yAtX(pc.x, pc.blueY, destEyeX, leftEyeY, barrierX);
-      if (hitsBarrier(blueBadY)) {
+      // BLUE pixel → Left eye (BAD)
+      const blueBadX = xAtY(pc.blueX, pc.y, leftEyeX, destEyeY, barrierY);
+      if (hitsBarrier(blueBadX)) {
         ctx.globalAlpha = 0.3;
         ctx.strokeStyle = "rgba(20,70,180,0.55)";
         ctx.beginPath();
-        ctx.moveTo(pc.x, pc.blueY);
-        ctx.lineTo(barrierX, blueBadY);
+        ctx.moveTo(pc.blueX, pc.y);
+        ctx.lineTo(blueBadX, barrierY);
         ctx.stroke();
       } else {
         ctx.globalAlpha = 0.35;
         ctx.strokeStyle = "rgba(20,70,180,0.55)";
         ctx.beginPath();
-        ctx.moveTo(pc.x, pc.blueY);
-        ctx.lineTo(destEyeX, leftEyeY);
+        ctx.moveTo(pc.blueX, pc.y);
+        ctx.lineTo(leftEyeX, destEyeY);
         ctx.stroke();
       }
     }
     ctx.globalAlpha = 1;
 
-    // --- Legend box (bottom right) ---
-    const legendX = W - 140;
-    const legendY = H - 80;
-    ctx.strokeStyle = "#555";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(legendX, legendY, 120, 60);
-    ctx.fillStyle = "rgba(30,80,180,0.95)";
-    ctx.fillRect(legendX + 10, legendY + 10, 16, 16);
-    ctx.fillStyle = "#111";
-    ctx.font = "bold 13px 'Exo 2', sans-serif";
-    ctx.fillText("Right Eye", legendX + 34, legendY + 23);
-    ctx.fillStyle = "rgba(180,40,40,0.95)";
-    ctx.fillRect(legendX + 10, legendY + 34, 16, 16);
-    ctx.fillStyle = "#111";
-    ctx.fillText("Left Eye", legendX + 34, legendY + 47);
-
     // --- Status indicator ---
-    if (barrierFrac < 0.1) {
+    ctx.textAlign = "center";
+    ctx.font = "bold 13px 'Exo 2', sans-serif";
+    if (barrierFrac < 0.5) {
       ctx.fillStyle = "#444";
-      ctx.font = "bold 13px 'Exo 2', sans-serif";
-      ctx.fillText("BARRIER DISABLED — Both eyes see all pixels", W / 2 - 140, H - 14);
-    } else if (barrierFrac > 0.9) {
-      ctx.fillStyle = "#991100";
-      ctx.font = "bold 13px 'Exo 2', sans-serif";
-      ctx.fillText("3D MODE — Barrier directs light to each eye", W / 2 - 135, H - 14);
+      ctx.fillText("Barrier disabled — Both eyes see all pixels", W / 2, H - 12);
     } else {
-      ctx.fillStyle = "#775500";
-      ctx.font = "bold 13px 'Exo 2', sans-serif";
-      ctx.fillText("ADJUSTING BARRIER...", W / 2 - 70, H - 14);
+      ctx.fillStyle = "#991100";
+      ctx.fillText("3D Mode — Barrier directs light to each eye", W / 2, H - 12);
     }
+    ctx.textAlign = "left";
   }
 
-  function drawEye(ctx, x, y, color, label) {
-    // Eye outline (sideways almond shape pointing left)
+  function drawEye(ctx, x, y, color) {
+    // Eye looking up — horizontal almond, pupil at top
     ctx.strokeStyle = color;
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(x - 18, y);
-    ctx.quadraticCurveTo(x, y - 12, x + 14, y);
-    ctx.quadraticCurveTo(x, y + 12, x - 18, y);
+    ctx.moveTo(x - 16, y);
+    ctx.quadraticCurveTo(x, y - 14, x + 16, y);
+    ctx.quadraticCurveTo(x, y + 10, x - 16, y);
     ctx.stroke();
-    // Pupil
+    // Pupil — slightly above center to show looking up at screen
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.arc(x, y - 4, 4, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  slider.addEventListener("input", () => {
-    const val = parseInt(slider.value);
-    valueLabel.textContent = val < 10 ? "3D ON" : val + "%";
-    draw(val);
+  function updateLabels(on) {
+    label3D.classList.toggle("on", on);
+  }
+
+  let currentValue = 0;
+  let targetValue = 0;
+  let animFrame = null;
+
+  function animate() {
+    const diff = targetValue - currentValue;
+    if (Math.abs(diff) < 0.5) {
+      currentValue = targetValue;
+      draw(currentValue);
+      animFrame = null;
+      return;
+    }
+    currentValue += diff * 0.18;
+    draw(currentValue);
+    animFrame = requestAnimationFrame(animate);
+  }
+
+  toggle.addEventListener("click", () => {
+    const on = toggle.getAttribute("aria-checked") !== "true";
+    toggle.setAttribute("aria-checked", on ? "true" : "false");
+    updateLabels(on);
+    targetValue = on ? 100 : 0;
+    if (!animFrame) animFrame = requestAnimationFrame(animate);
   });
 
   // Start with barrier disabled
-  slider.value = 0;
-  valueLabel.textContent = "3D OFF";
+  toggle.setAttribute("aria-checked", "false");
+  updateLabels(false);
   draw(0);
 }
 
@@ -317,136 +315,120 @@ function initPixelDemo() {
   const canvas = document.getElementById("pixel-canvas");
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
+  const toggle = document.getElementById("pixel-toggle");
+  const label3D = document.getElementById("pixel-3d-label");
+  if (!toggle || !label3D) return;
+
   const W = canvas.width;
   const H = canvas.height;
 
-  const PAIRS = 10;
-  const subW = 16;        // width of one sub-pixel column
-  const pxH = 80;         // height of each pixel block
-  const pairGap = 4;      // gap between pairs
-  const splitGap = 3;     // gap between sub-pixels in 3D mode
-  const sectionGap = 60;  // vertical gap between 2D and 3D sections
+  const COLS = 8;
+  const ROWS = 3;
+  const subW = 20;
+  const subGap = 3;         // gap between sub-pixels within a pair
+  const pxH = subW * 2;     // pair width (without gap) determines square height
+  const pairW = subW * 2 + subGap;
+  const pairGap = 10;
+  const rowGap = 12;
+  const totalW = COLS * pairW + (COLS - 1) * pairGap;
+  const totalH = ROWS * pxH + (ROWS - 1) * rowGap;
+  const startX = (W - totalW) / 2;
+  const startY = 75;
 
-  // Generate colors for left-eye and right-eye images
-  const leftHues = [];
-  const rightHues = [];
-  for (let i = 0; i < PAIRS; i++) {
-    leftHues.push((i * 32 + 10) % 360);
-    rightHues.push((i * 32 + 160) % 360);
+  // 3DS-style RGB + black palette
+  const palette = ["#e6353f", "#2eb44a", "#3a6cf0"];
+  const maskColor = "#050507";
+
+  function colorFor(c, r, is3D, side) {
+    const baseIdx = (c * 3 + r * 5) % palette.length;
+    if (!is3D) return palette[baseIdx];
+    if (side === "L") return palette[baseIdx];
+    // 3D mode: R sub-pixel offset to represent different (parallax-shifted) image
+    return palette[(baseIdx + 1) % palette.length];
   }
 
-  function hslStr(h, s, l) {
-    return `hsl(${h}, ${s}%, ${l}%)`;
-  }
+  function draw(is3D) {
+    ctx.fillStyle = "#f5f5f7";
+    ctx.fillRect(0, 0, W, H);
 
-  ctx.fillStyle = "#f5f5f7";
-  ctx.fillRect(0, 0, W, H);
+    // Title
+    ctx.fillStyle = "#222";
+    ctx.font = "bold 17px 'Exo 2', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(is3D ? "3D Mode" : "2D Mode", W / 2, 28);
 
-  // --- 2D MODE (top half) ---
-  const pairW2D = subW * 2;
-  const totalW2D = PAIRS * pairW2D + (PAIRS - 1) * pairGap;
-  const startX2D = (W - totalW2D) / 2;
-  const startY2D = 55;
-
-  // Title
-  ctx.fillStyle = "#222";
-  ctx.font = "bold 15px 'Exo 2', sans-serif";
-  ctx.fillText("2D Mode — Sub-pixels paired (same color)", startX2D, startY2D - 12);
-
-  for (let i = 0; i < PAIRS; i++) {
-    const x = startX2D + i * (pairW2D + pairGap);
-    const color = hslStr(leftHues[i], 55, 40);
-
-    // Both sub-pixels show the same color
-    ctx.fillStyle = color;
-    ctx.fillRect(x, startY2D, subW, pxH);
-    ctx.fillRect(x + subW, startY2D, subW, pxH);
-
-    // Thin divider to show sub-pixel boundary
-    ctx.strokeStyle = "rgba(255,255,255,0.3)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(x + subW, startY2D);
-    ctx.lineTo(x + subW, startY2D + pxH);
-    ctx.stroke();
-
-    // Bracket underneath showing pair
-    const bracketY = startY2D + pxH + 6;
-    ctx.strokeStyle = "#666";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(x + 2, bracketY);
-    ctx.lineTo(x + 2, bracketY + 5);
-    ctx.lineTo(x + pairW2D - 2, bracketY + 5);
-    ctx.lineTo(x + pairW2D - 2, bracketY);
-    ctx.stroke();
-
-    // Pixel number
+    // Subtitle
     ctx.fillStyle = "#555";
-    ctx.font = "bold 10px 'Exo 2', sans-serif";
+    ctx.font = "13px 'Source Sans 3', sans-serif";
+    if (is3D) {
+      ctx.fillText("Each pair splits — left and right sub-pixels show different images", W / 2, 50);
+    } else {
+      ctx.fillText("Each pair of sub-pixels shows the same color, acting as one pixel", W / 2, 50);
+    }
+
+    // Dark screen mask behind the grid (gives gaps a real-screen look)
+    const maskPad = 4;
+    ctx.fillStyle = maskColor;
+    ctx.fillRect(startX - maskPad, startY - maskPad, totalW + maskPad * 2, totalH + maskPad * 2);
+
+    // Pixel grid
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        const x = startX + c * (pairW + pairGap);
+        const y = startY + r * (pxH + rowGap);
+        const isFirst = (r === 0 && c === 0);
+
+        if (is3D) {
+          ctx.fillStyle = colorFor(c, r, true, "L");
+          ctx.fillRect(x, y, subW, pxH);
+          ctx.fillStyle = colorFor(c, r, true, "R");
+          ctx.fillRect(x + subW + subGap, y, subW, pxH);
+
+          if (isFirst) {
+            ctx.fillStyle = "rgba(255,255,255,0.95)";
+            ctx.font = "bold 14px 'Exo 2', sans-serif";
+            ctx.fillText("L", x + subW / 2, y + pxH / 2 + 5);
+            ctx.fillText("R", x + subW + subGap + subW / 2, y + pxH / 2 + 5);
+          }
+        } else {
+          // Both sub-pixels show the same color, with the dark gap showing through
+          const color = colorFor(c, r, false);
+          ctx.fillStyle = color;
+          ctx.fillRect(x, y, subW, pxH);
+          ctx.fillRect(x + subW + subGap, y, subW, pxH);
+
+          if (isFirst) {
+            ctx.fillStyle = "rgba(255,255,255,0.95)";
+            ctx.font = "bold 11px 'Exo 2', sans-serif";
+            ctx.fillText("1 px", x + pairW / 2, y + pxH / 2 + 4);
+          }
+        }
+      }
+    }
+
+    // Bottom annotation
+    ctx.fillStyle = "#555";
+    ctx.font = "italic 12px 'Source Sans 3', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(`${i + 1}`, x + subW, bracketY + 16);
+    if (is3D) {
+      ctx.fillText("Each eye sees only its own sub-pixels — ~400 pixels per eye", W / 2, H - 18);
+    } else {
+      ctx.fillText("800 sub-pixels paired into 400 effective pixels", W / 2, H - 18);
+    }
+    ctx.textAlign = "left";
   }
 
-  // Appearance label
-  ctx.textAlign = "left";
-  ctx.fillStyle = "#666";
-  ctx.font = "italic 12px 'Source Sans 3', sans-serif";
-  ctx.fillText("Appears as " + PAIRS + " wide pixels (400px apparent width)", startX2D, startY2D + pxH + 36);
+  toggle.addEventListener("click", () => {
+    const on = toggle.getAttribute("aria-checked") !== "true";
+    toggle.setAttribute("aria-checked", on ? "true" : "false");
+    label3D.classList.toggle("on", on);
+    draw(on);
+  });
 
-  // --- 3D MODE (bottom half) ---
-  const startY3D = startY2D + pxH + sectionGap + 40;
-  const pairW3D = subW * 2 + splitGap;
-  const totalW3D = PAIRS * pairW3D + (PAIRS - 1) * pairGap;
-  const startX3D = (W - totalW3D) / 2;
-
-  // Title
-  ctx.fillStyle = "#222";
-  ctx.font = "bold 15px 'Exo 2', sans-serif";
-  ctx.textAlign = "left";
-  ctx.fillText("3D Mode — Sub-pixels split (different images)", startX3D, startY3D - 12);
-
-  for (let i = 0; i < PAIRS; i++) {
-    const x = startX3D + i * (pairW3D + pairGap);
-    const leftColor = hslStr(leftHues[i], 55, 40);
-    const rightColor = hslStr(rightHues[i], 50, 35);
-
-    // Left-eye sub-pixel
-    ctx.fillStyle = leftColor;
-    ctx.fillRect(x, startY3D, subW, pxH);
-
-    // Right-eye sub-pixel
-    ctx.fillStyle = rightColor;
-    ctx.fillRect(x + subW + splitGap, startY3D, subW, pxH);
-
-    // "L" and "R" labels inside sub-pixels
-    ctx.fillStyle = "rgba(255,255,255,0.7)";
-    ctx.font = "bold 10px 'Exo 2', sans-serif";
-    ctx.textAlign = "center";
-    ctx.fillText("L", x + subW / 2, startY3D + pxH / 2 + 4);
-    ctx.fillText("R", x + subW + splitGap + subW / 2, startY3D + pxH / 2 + 4);
-  }
-
-  // Appearance label
-  ctx.textAlign = "left";
-  ctx.fillStyle = "#666";
-  ctx.font = "italic 12px 'Source Sans 3', sans-serif";
-  ctx.fillText("Each sub-pixel shows a separate image (800px, split between eyes)", startX3D, startY3D + pxH + 20);
-
-  // --- Legend ---
-  const legX = W - 170;
-  const legY = startY3D + pxH + 40;
-  ctx.fillStyle = hslStr(leftHues[0], 55, 40);
-  ctx.fillRect(legX, legY, 14, 14);
-  ctx.fillStyle = "#222";
-  ctx.font = "bold 12px 'Exo 2', sans-serif";
-  ctx.textAlign = "left";
-  ctx.fillText("Left Eye Image", legX + 20, legY + 12);
-
-  ctx.fillStyle = hslStr(rightHues[0], 50, 35);
-  ctx.fillRect(legX, legY + 22, 14, 14);
-  ctx.fillStyle = "#222";
-  ctx.fillText("Right Eye Image", legX + 20, legY + 34);
+  // Start in 2D mode
+  toggle.setAttribute("aria-checked", "false");
+  label3D.classList.remove("on");
+  draw(false);
 }
 
 

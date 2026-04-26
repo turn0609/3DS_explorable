@@ -106,21 +106,27 @@
         <div class="interactive-block" id="barrier-demo">
           <div class="interactive-label">Interactive: Parallax Barrier</div>
           <div class="barrier-viewport">
-            <canvas id="barrier-canvas" width="580" height="460"></canvas>
+            <canvas id="barrier-canvas" width="460" height="600"></canvas>
+            <div class="ds-3d-controls">
+              <div class="ds-3d-indicator">
+                <span class="ds-3d-label" id="barrier-3d-label">3D</span>
+                <span class="ds-3d-triangle"></span>
+                <span class="ds-3d-off">OFF</span>
+              </div>
+              <button
+                type="button"
+                id="barrier-toggle"
+                class="ds-3d-slider"
+                role="switch"
+                aria-checked="false"
+                aria-label="Toggle parallax barrier"
+              >
+                <span class="ds-3d-track"></span>
+                <span class="ds-3d-thumb"></span>
+              </button>
+            </div>
           </div>
-          <div class="interactive-controls">
-            <label class="slider-label" for="barrier-slider">3D OFF</label>
-            <input
-              type="range"
-              id="barrier-slider"
-              min="0"
-              max="100"
-              value="0"
-              class="ds-slider"
-            />
-            <span class="slider-value" id="barrier-value">3D ON</span>
-          </div>
-          <p class="interactive-hint">Drag the slider to open the parallax barrier and see how light is directed to each eye.</p>
+          <p class="interactive-hint">Flip the 3D slider to enable the parallax barrier and see how light is directed to each eye.</p>
         </div>
 
         <p>In order for us to successfully perceive 3D, the device also must be able to display two images at once.
@@ -132,13 +138,40 @@
           This creates the illusion of a square pixel.
           When 3D mode is activated, the pair switches to 2 separate displays and the pixels appear to separate from each other.</p>
 
-        <!-- STATIC: Pixel Pairing Comparison -->
+        <!-- INTERACTIVE: Pixel Pairing -->
         <div class="interactive-block" id="pixel-demo">
-          <div class="interactive-label">Pixel Pairing</div>
-          <div class="pixel-figure-wrap">
-            <canvas id="pixel-canvas" width="580" height="340"></canvas>
+          <div class="interactive-label">Interactive: Pixel Pairing</div>
+          <div class="barrier-viewport">
+            <canvas id="pixel-canvas" width="460" height="260"></canvas>
+            <div class="ds-3d-controls">
+              <div class="ds-3d-indicator">
+                <span class="ds-3d-label" id="pixel-3d-label">3D</span>
+                <span class="ds-3d-triangle"></span>
+                <span class="ds-3d-off">OFF</span>
+              </div>
+              <button
+                type="button"
+                id="pixel-toggle"
+                class="ds-3d-slider"
+                role="switch"
+                aria-checked="false"
+                aria-label="Toggle 3D pixel mode"
+              >
+                <span class="ds-3d-track"></span>
+                <span class="ds-3d-thumb"></span>
+              </button>
+            </div>
           </div>
-          <p class="interactive-hint">In 2D mode, each sub-pixel pair displays the same color, creating the appearance of one wider pixel. In 3D mode, the pairs split so each sub-pixel shows a different image.</p>
+          <p class="interactive-hint">Flip the 3D slider to switch between 2D mode (sub-pixel pairs show the same color) and 3D mode (each sub-pixel shows a different image).</p>
+        </div>
+
+        <div class="video-embed">
+          <iframe
+            src="https://www.youtube-nocookie.com/embed/Rv7iqf6GIL4?rel=0"
+            title="YouTube video"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
         </div>
       </section>
 

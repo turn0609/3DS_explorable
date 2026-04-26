@@ -359,6 +359,25 @@ a:hover {
         inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
+.video-embed {
+    margin: 2em 0;
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    background: #000;
+}
+
+.video-embed iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
 .interactive-label {
     font-family: 'Exo 2', sans-serif;
     font-size: 12px;
@@ -419,61 +438,92 @@ a:hover {
 }
 
 
-/* ---------- 3D SLIDER (range input) ---------- */
+/* ---------- 3DS-STYLE 3D SLIDER ---------- */
 
-.slider-label {
+.ds-3d-controls {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 0;
+    background-color: transparent;
+    border: none;
+    flex-shrink: 0;
+}
+
+.ds-3d-indicator {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    user-select: none;
+}
+
+.ds-3d-label {
     font-family: 'Exo 2', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: #666;
-    white-space: nowrap;
+    font-size: 16px;
+    font-weight: 800;
+    color: #999;
+    letter-spacing: 1px;
+    transition: color 0.25s ease, text-shadow 0.25s ease;
 }
 
-.ds-slider {
-    -webkit-appearance: none;
-    appearance: none;
-    flex: 1;
-    height: 6px;
-    border-radius: 3px;
-    background: #e0dfe4;
-    outline: none;
-    border: 1px solid rgba(0, 0, 0, 0.08);
+.ds-3d-label.on {
+    color: #1aaf2f;
+    text-shadow: 0 0 8px rgba(60, 220, 80, 0.7), 0 0 3px rgba(60, 220, 80, 0.5);
 }
 
-.ds-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: linear-gradient(180deg, #dd2200 0%, #aa0e00 100%);
-    border: 2px solid #ee3300;
-    cursor: pointer;
-    box-shadow: 0 0 8px rgba(200, 10, 0, 0.35);
-    transition: box-shadow 0.2s;
+.ds-3d-triangle {
+    width: 12px;
+    height: 42px;
+    background: #999;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
 }
 
-.ds-slider::-webkit-slider-thumb:hover {
-    box-shadow: 0 0 14px rgba(220, 20, 0, 0.5);
-}
-
-.ds-slider::-moz-range-thumb {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: linear-gradient(180deg, #dd2200 0%, #aa0e00 100%);
-    border: 2px solid #ee3300;
-    cursor: pointer;
-    box-shadow: 0 0 8px rgba(200, 10, 0, 0.35);
-}
-
-.slider-value {
+.ds-3d-off {
     font-family: 'Exo 2', sans-serif;
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 700;
-    color: #bb1100;
-    min-width: 36px;
-    text-align: right;
+    color: #555;
+    letter-spacing: 1.5px;
+}
+
+.ds-3d-slider {
+    position: relative;
+    width: 32px;
+    height: 92px;
+    background: linear-gradient(90deg, #b6b4bb 0%, #8a888f 50%, #b6b4bb 100%);
+    border: 1px solid #2a2a30;
+    border-radius: 3px;
+    padding: 0;
+    cursor: pointer;
+    flex-shrink: 0;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.ds-3d-slider:focus-visible {
+    outline: 2px solid rgba(60, 220, 80, 0.6);
+    outline-offset: 2px;
+}
+
+.ds-3d-track {
+    display: none;
+}
+
+.ds-3d-thumb {
+    position: absolute;
+    left: -4px;
+    width: 40px;
+    height: 32px;
+    bottom: 4px;
+    background: linear-gradient(180deg, #e8e6ed 0%, #b4b2b9 50%, #76747b 100%);
+    border: 1px solid #2a2a30;
+    border-radius: 3px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    transition: bottom 0.32s ease;
+}
+
+.ds-3d-slider[aria-checked="true"] .ds-3d-thumb {
+    bottom: 56px;
 }
 
 
@@ -506,8 +556,11 @@ a:hover {
 
 .barrier-viewport {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0;
     padding: 16px;
+    padding-left: 24px;
     background-color: #f5f5f7;
 }
 
