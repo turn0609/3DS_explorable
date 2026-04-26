@@ -405,8 +405,8 @@ function initPixelDemo() {
 
           if (isFirst) {
             ctx.fillStyle = "rgba(255,255,255,0.95)";
-            ctx.font = "bold 11px 'Exo 2', sans-serif";
-            ctx.fillText("1 px", x + pairW / 2, y + pxH / 2 + 4);
+            ctx.font = "bold 14px 'Exo 2', sans-serif";
+            ctx.fillText("1 px", x + pairW / 2, y + pxH / 2 + 5);
           }
         }
       }

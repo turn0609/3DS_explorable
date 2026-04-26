@@ -371,6 +371,12 @@ a:hover {
     background: #000;
 }
 
+.interactive-block .video-embed {
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
 .video-embed iframe {
     position: absolute;
     inset: 0;
