@@ -255,18 +255,24 @@ function initBarrierDemo() {
   }
 
   function drawEye(ctx, x, y, color) {
-    // Eye looking up — horizontal almond, pupil at top
+    // Simple eye: black almond outline, pupil, a few eyelashes
+    const eyeW = 20;
+    const eyeUp = 14;
+    const eyeDown = 10;
+
+    // Almond outline
     ctx.strokeStyle = color;
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(x - 16, y);
-    ctx.quadraticCurveTo(x, y - 14, x + 16, y);
-    ctx.quadraticCurveTo(x, y + 10, x - 16, y);
+    ctx.moveTo(x - eyeW, y);
+    ctx.quadraticCurveTo(x, y - eyeUp, x + eyeW, y);
+    ctx.quadraticCurveTo(x, y + eyeDown, x - eyeW, y);
     ctx.stroke();
-    // Pupil — slightly above center to show looking up at screen
+
+    // Pupil — slightly above center to suggest looking up
     ctx.fillStyle = color;
     ctx.beginPath();
-    ctx.arc(x, y - 4, 4, 0, Math.PI * 2);
+    ctx.arc(x, y - 1, 5.5, 0, Math.PI * 2);
     ctx.fill();
   }
 
@@ -361,7 +367,7 @@ function initPixelDemo() {
     ctx.fillStyle = "#555";
     ctx.font = "13px 'Source Sans 3', sans-serif";
     if (is3D) {
-      ctx.fillText("Each pair splits — left and right sub-pixels show different images", W / 2, 50);
+      ctx.fillText("Each pair splits and the left and right sub-pixels show different images", W / 2, 50);
     } else {
       ctx.fillText("Each pair of sub-pixels shows the same color, acting as one pixel", W / 2, 50);
     }
@@ -411,7 +417,7 @@ function initPixelDemo() {
     ctx.font = "italic 12px 'Source Sans 3', sans-serif";
     ctx.textAlign = "center";
     if (is3D) {
-      ctx.fillText("Each eye sees only its own sub-pixels — ~400 pixels per eye", W / 2, H - 18);
+      ctx.fillText("Each eye sees only its own sub-pixels, around 400 pixels per eye", W / 2, H - 18);
     } else {
       ctx.fillText("800 sub-pixels paired into 400 effective pixels", W / 2, H - 18);
     }

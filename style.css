@@ -71,7 +71,7 @@ body {
     font-weight: 600;
     color: #999;
     order: 1;
-    white-space: normal;
+    white-space: nowrap;
     transition: color 0.3s, font-size 0.3s;
 }
 
@@ -284,8 +284,8 @@ body {
 }
 
 .article-section + .article-section {
-    margin-top: 20px;
-    padding-top: 20px;
+    margin-top: 8px;
+    padding-top: 8px;
 }
 
 h2 {
@@ -352,7 +352,8 @@ a:hover {
     background-color: #fafafa;
     border: 1px solid rgba(180, 20, 0, 0.18);
     border-top: 2px solid rgba(200, 15, 0, 0.45);
-    border-radius: 4px;
+    border-left: 4px solid #cc1100;
+    border-radius: 0 4px 4px 0;
     overflow: hidden;
     box-shadow:
         0 4px 16px rgba(0, 0, 0, 0.06),
@@ -380,13 +381,25 @@ a:hover {
 
 .interactive-label {
     font-family: 'Exo 2', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
     color: #bb1100;
-    padding: 10px 16px;
-    background-color: rgba(200, 15, 0, 0.05);
+    padding: 11px 16px;
+    background:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.04) 2px,
+            rgba(0, 0, 0, 0.04) 4px
+        ),
+        linear-gradient(
+            168deg,
+            #fff0ee 0%,
+            #ffffff 35%,
+            #f8f8fa 100%
+        );
     border-bottom: 1px solid rgba(180, 20, 0, 0.12);
 }
 
@@ -405,6 +418,11 @@ a:hover {
     margin: 0;
     padding: 12px;
     line-height: 1.5;
+}
+
+#barrier-demo .interactive-hint {
+    word-spacing: 1px;
+    text-wrap: pretty;
 }
 
 

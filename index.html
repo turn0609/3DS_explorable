@@ -81,7 +81,7 @@
               <strong>Now</strong>, close your right eye instead. Your finger appears to jump! Notice that the closer your finger is to your face, the bigger the jump.
               <strong>Finally</strong>, open both of your eyes and see how you can see both your finger and the shape underneath.</p>
               
-              <p class="interactive-hint">Both the shifting and the ability to see both shape and finder is due to <strong>binocular disparity</strong>.</p>
+              <p class="interactive-hint">Both the shifting and the ability to see both shape and finger is due to <strong>binocular disparity</strong>.</p>
           </div>
         </div>
 
@@ -126,17 +126,18 @@
               </button>
             </div>
           </div>
-          <p class="interactive-hint">Flip the 3D slider to enable the parallax barrier and see how light is directed to each eye.</p>
+          <p class="interactive-hint">Toggle the 3D slider to enable the parallax barrier and see how light is directed to each eye.</p>
         </div>
 
         <p>In order for us to successfully perceive 3D, the device also must be able to display two images at once.
-          When in 3D mode, the 3DS display doubles its width in pixels. This is done by alternating each row of pixels to break up the screen into two images.</p>
+          When in 3D mode, the 3DS display effectively doubles its width in pixels. This is done by alternating each row of pixels to break up the screen into two images.</p>
 
-        <p>There is a simple explanation for how the screen size seems to double.
-          Although the resolution of 2D mode appears to be 400 pixels wide, the screen is always 800 pixels wide.
-          <a href="https://gbatemp.net/threads/guide-why-pixels-look-different-between-2d-and-3d-modes.482683/" target="_blank">Each row of 2 pixels acts as a pair, matching the color between the pair</a>.
+        <p>Although the effective resolution is doubled in 3D mode, the screen width doesn't actually change.
+          The screen is always technically 800 pixels wide, regardless of depth mode.
+          The pixels themselves are rectangular, with a height twice the size of the width.
+          <a href="https://gbatemp.net/threads/guide-why-pixels-look-different-between-2d-and-3d-modes.482683/" target="_blank">Each row of 2 rectangular pixels acts as a pair, matching the color between the sub-pixels</a>.
           This creates the illusion of a square pixel.
-          When 3D mode is activated, the pair switches to 2 separate displays and the pixels appear to separate from each other.</p>
+          When 3D mode is activated, the pair switches to alternate between separate displays and the pixels appear as their true size.</p>
 
         <!-- INTERACTIVE: Pixel Pairing -->
         <div class="interactive-block" id="pixel-demo">
