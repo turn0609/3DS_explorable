@@ -129,6 +129,39 @@
           <p class="interactive-hint">Toggle the 3D slider to enable the parallax barrier and see how light is directed to each eye.</p>
         </div>
 
+        <p>Our ability to toggle the barrier on and off is because of the liquid crystal material the outer screen is made of.
+          This material is invisible in its normal state, allowing us to view the full 2D image.
+          However, once the barrier is enabled, an electric current is sent through the liquid crystal material.
+          The current causes the material to form vertical black barriers along the display.
+        </p>
+
+        <!-- INTERACTIVE: Liquid Crystal -->
+        <div class="interactive-block" id="lcd-demo">
+          <div class="interactive-label">Interactive: Liquid Crystal Display</div>
+          <div class="barrier-viewport">
+            <canvas id="lcd-canvas" width="460" height="280"></canvas>
+            <div class="ds-3d-controls">
+              <div class="ds-3d-indicator">
+                <span class="ds-3d-label" id="lcd-on-label">ON</span>
+                <span class="ds-3d-triangle"></span>
+                <span class="ds-3d-off">OFF</span>
+              </div>
+              <button
+                type="button"
+                id="lcd-toggle"
+                class="ds-3d-slider"
+                role="switch"
+                aria-checked="false"
+                aria-label="Toggle voltage"
+              >
+                <span class="ds-3d-track"></span>
+                <span class="ds-3d-thumb"></span>
+              </button>
+            </div>
+          </div>
+          <p class="interactive-hint">Toggle the voltage to send currents through the liquid crystal cells. Without a current, the molecules tilt in random directions and the cell is transparent. With an active current they align vertically, blocking light and forming a visible black barrier.</p>
+        </div>
+
         <p>In order for us to successfully perceive 3D, the device also must be able to display two images at once.
           When in 3D mode, the 3DS display effectively doubles its width in pixels. This is done by alternating each row of pixels to break up the screen into two images.</p>
 
@@ -163,7 +196,7 @@
               </button>
             </div>
           </div>
-          <p class="interactive-hint">Toggle 3D slider to switch between 2D mode (sub-pixel pairs show the same color) and 3D mode (each sub-pixel shows a different image).</p>
+          <p class="interactive-hint">Toggle 3D slider to switch between 2D mode (sub-pixel pairs show the same color) and 3D mode (each sub-pixel shows a different color).</p>
         </div>
       </section>
 

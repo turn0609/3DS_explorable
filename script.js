@@ -5,6 +5,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   initDisparityDemo();
   initBarrierDemo();
+  initLCDDemo();
   initPixelDemo();
   initSideNav();
 });
@@ -309,6 +310,200 @@ function initBarrierDemo() {
   toggle.setAttribute("aria-checked", "false");
   updateLabels(false);
   draw(0);
+}
+
+
+/* ----------------------------------------------------------
+   2.5 LIQUID CRYSTAL DEMO
+   Toggle voltage to align LC molecules and turn the cell from
+   transparent to opaque (the parallax barrier effect).
+   ---------------------------------------------------------- */
+
+function initLCDDemo() {
+  const canvas = document.getElementById("lcd-canvas");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const toggle = document.getElementById("lcd-toggle");
+  const labelOn = document.getElementById("lcd-on-label");
+  if (!toggle || !labelOn) return;
+
+  const W = canvas.width;
+  const H = canvas.height;
+
+  // Cell layout
+  const cellX = 60;
+  const cellY = 60;
+  const cellW = 340;
+  const cellH = 130;
+  const cols = 14;
+  const rows = 5;
+  const moleculeLen = 14;
+
+  // Pre-compute random-ish "off" angles per molecule
+  const offAngles = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      offAngles.push(20 + ((c * 3 + r * 7) % 5) * 9); // 20, 29, 38, 47, 56 deg
+    }
+  }
+
+  let value = 0;        // 0 = off (transparent), 1 = on (opaque)
+  let target = 0;
+  let animFrame = null;
+
+  function lerp(a, b, t) { return a + (b - a) * t; }
+
+  function draw() {
+    // Background
+    ctx.fillStyle = "#f5f5f7";
+    ctx.fillRect(0, 0, W, H);
+
+    // Title
+    ctx.fillStyle = "#222";
+    ctx.font = "bold 16px 'Exo 2', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Liquid Crystal Cells", W / 2, 30);
+
+    // Cell base fill (light, transparent-looking)
+    ctx.fillStyle = "#f1f1f4";
+    ctx.fillRect(cellX, cellY, cellW, cellH);
+
+    // Stripes — every other column darkens when voltage is on (full barrier pattern)
+    const stripeW = cellW / cols;
+    const targetCol = 6;            // the highlighted stripe whose circuit is shown
+    const targetCenterX = cellX + (targetCol + 0.5) * stripeW;
+
+    for (let c = 0; c < cols; c++) {
+      if (c % 2 === 0) {
+        ctx.fillStyle = `rgba(15,15,18,${value})`;
+        ctx.fillRect(cellX + c * stripeW, cellY, stripeW, cellH);
+      }
+    }
+
+    // Cell border
+    ctx.strokeStyle = "rgba(60,60,80,0.4)";
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(cellX, cellY, cellW, cellH);
+
+    // Highlight the target stripe with a subtle green outline when voltage is on
+    if (value > 0.05) {
+      ctx.strokeStyle = `rgba(60,210,90,${value * 0.9})`;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(cellX + targetCol * stripeW, cellY, stripeW, cellH);
+    }
+
+    // Molecules
+    let i = 0;
+    ctx.lineCap = "round";
+    ctx.lineWidth = 2.6;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const mx = cellX + (c + 0.5) * stripeW;
+        const my = cellY + (r + 0.5) * (cellH / rows);
+        const isBarrier = (c % 2 === 0);
+        const offAng = offAngles[i++];
+        const angle = isBarrier ? lerp(offAng, 90, value) : offAng;
+        const angleRad = (angle * Math.PI) / 180;
+        const dx = (moleculeLen / 2) * Math.cos(angleRad);
+        const dy = (moleculeLen / 2) * Math.sin(angleRad);
+
+        let r1, g1, b1;
+        if (isBarrier) {
+          r1 = Math.round(lerp(70, 230, value));
+          g1 = Math.round(lerp(70, 230, value));
+          b1 = Math.round(lerp(95, 240, value));
+        } else {
+          r1 = 70; g1 = 70; b1 = 95;
+        }
+        ctx.strokeStyle = `rgba(${r1},${g1},${b1},0.7)`;
+
+        ctx.beginPath();
+        ctx.moveTo(mx - dx, my - dy);
+        ctx.lineTo(mx + dx, my + dy);
+        ctx.stroke();
+      }
+    }
+    ctx.lineCap = "butt";
+
+    // Voltage source: + and − terminals connected to the single target stripe
+    const vY = cellY + cellH + 36;
+    const wireOn = value > 0.5;
+    const terminalFill = wireOn ? "#22aa44" : "#888";
+    const wireColor = wireOn ? `rgba(40,200,75,${0.55 + value * 0.45})` : "#bbb";
+
+    // Plus terminal (left of stripe)
+    const plusX = targetCenterX - 38;
+    const minusX = targetCenterX + 10;
+    ctx.fillStyle = terminalFill;
+    ctx.fillRect(plusX, vY - 10, 28, 20);
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 14px 'Exo 2', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("+", plusX + 14, vY + 5);
+
+    // Minus terminal (right of stripe)
+    ctx.fillStyle = terminalFill;
+    ctx.fillRect(minusX, vY - 10, 28, 20);
+    ctx.fillStyle = "#fff";
+    ctx.fillText("−", minusX + 14, vY + 5);
+
+    // Wires from each terminal up and into the same stripe
+    ctx.strokeStyle = wireColor;
+    ctx.lineWidth = 2;
+    const meetY = cellY + cellH + 12;
+    const stripeLeftX = targetCenterX - 4;
+    const stripeRightX = targetCenterX + 4;
+    // + wire: terminal top → up → bend right → into stripe bottom
+    ctx.beginPath();
+    ctx.moveTo(plusX + 14, vY - 10);
+    ctx.lineTo(plusX + 14, meetY);
+    ctx.lineTo(stripeLeftX, meetY);
+    ctx.lineTo(stripeLeftX, cellY + cellH);
+    ctx.stroke();
+    // − wire: terminal top → up → bend left → into stripe bottom
+    ctx.beginPath();
+    ctx.moveTo(minusX + 14, vY - 10);
+    ctx.lineTo(minusX + 14, meetY);
+    ctx.lineTo(stripeRightX, meetY);
+    ctx.lineTo(stripeRightX, cellY + cellH);
+    ctx.stroke();
+
+    // Status text
+    ctx.fillStyle = "#555";
+    ctx.font = "italic 12px 'Source Sans 3', sans-serif";
+    ctx.textAlign = "center";
+    if (value > 0.5) {
+      ctx.fillText("Current flows through each stripe, aligning the molecules and blocking light", W / 2, H - 12);
+    } else {
+      ctx.fillText("No current means the molecules are tilted, making the cells transparent", W / 2, H - 12);
+    }
+    ctx.textAlign = "left";
+  }
+
+  function animate() {
+    const diff = target - value;
+    if (Math.abs(diff) < 0.005) {
+      value = target;
+      draw();
+      animFrame = null;
+      return;
+    }
+    value += diff * 0.18;
+    draw();
+    animFrame = requestAnimationFrame(animate);
+  }
+
+  toggle.addEventListener("click", () => {
+    const on = toggle.getAttribute("aria-checked") !== "true";
+    toggle.setAttribute("aria-checked", on ? "true" : "false");
+    labelOn.classList.toggle("on", on);
+    target = on ? 1 : 0;
+    if (!animFrame) animFrame = requestAnimationFrame(animate);
+  });
+
+  toggle.setAttribute("aria-checked", "false");
+  labelOn.classList.remove("on");
+  draw();
 }
 
 
