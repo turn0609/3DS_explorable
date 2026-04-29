@@ -63,13 +63,21 @@ function initDisparityDemo() {
 function initBarrierDemo() {
   const canvas = document.getElementById("barrier-canvas");
   if (!canvas) return;
+  const cssW = canvas.width;
+  const cssH = canvas.height;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.style.width = cssW + "px";
+  canvas.style.height = cssH + "px";
+  canvas.width = cssW * dpr;
+  canvas.height = cssH * dpr;
   const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
   const toggle = document.getElementById("barrier-toggle");
   const label3D = document.getElementById("barrier-3d-label");
 
   function draw(openAmount) {
-    const W = canvas.width;
-    const H = canvas.height;
+    const W = cssW;
+    const H = cssH;
     ctx.fillStyle = "#f5f5f7";
     ctx.fillRect(0, 0, W, H);
 
@@ -247,10 +255,10 @@ function initBarrierDemo() {
     ctx.font = "bold 13px 'Exo 2', sans-serif";
     if (barrierFrac < 0.5) {
       ctx.fillStyle = "#444";
-      ctx.fillText("Barrier disabled — Both eyes see all pixels", W / 2, H - 12);
+      ctx.fillText("Parallax barrier is disabled. Both eyes see all pixels.", W / 2, H - 12);
     } else {
       ctx.fillStyle = "#991100";
-      ctx.fillText("3D Mode — Barrier directs light to each eye", W / 2, H - 12);
+      ctx.fillText("3D Mode is enabled. Parallax barrier directs light to each eye.", W / 2, H - 12);
     }
     ctx.textAlign = "left";
   }
@@ -322,13 +330,18 @@ function initBarrierDemo() {
 function initLCDDemo() {
   const canvas = document.getElementById("lcd-canvas");
   if (!canvas) return;
+  const W = canvas.width;
+  const H = canvas.height;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.style.width = W + "px";
+  canvas.style.height = H + "px";
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
   const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
   const toggle = document.getElementById("lcd-toggle");
   const labelOn = document.getElementById("lcd-on-label");
   if (!toggle || !labelOn) return;
-
-  const W = canvas.width;
-  const H = canvas.height;
 
   // Cell layout
   const cellX = 60;
@@ -473,9 +486,9 @@ function initLCDDemo() {
     ctx.font = "italic 12px 'Source Sans 3', sans-serif";
     ctx.textAlign = "center";
     if (value > 0.5) {
-      ctx.fillText("Current flows through each stripe, aligning the molecules and blocking light", W / 2, H - 12);
+      ctx.fillText("Current flows through each stripe, aligning the molecules and blocking light.", W / 2, H - 12);
     } else {
-      ctx.fillText("No current means the molecules are tilted, making the cells transparent", W / 2, H - 12);
+      ctx.fillText("No current means the molecules are tilted, making the cells transparent.", W / 2, H - 12);
     }
     ctx.textAlign = "left";
   }
@@ -515,13 +528,18 @@ function initLCDDemo() {
 function initPixelDemo() {
   const canvas = document.getElementById("pixel-canvas");
   if (!canvas) return;
+  const W = canvas.width;
+  const H = canvas.height;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.style.width = W + "px";
+  canvas.style.height = H + "px";
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
   const ctx = canvas.getContext("2d");
+  ctx.scale(dpr, dpr);
   const toggle = document.getElementById("pixel-toggle");
   const label3D = document.getElementById("pixel-3d-label");
   if (!toggle || !label3D) return;
-
-  const W = canvas.width;
-  const H = canvas.height;
 
   const COLS = 8;
   const ROWS = 3;
@@ -562,9 +580,9 @@ function initPixelDemo() {
     ctx.fillStyle = "#555";
     ctx.font = "13px 'Source Sans 3', sans-serif";
     if (is3D) {
-      ctx.fillText("Each pair splits and the left and right sub-pixels show different images", W / 2, 50);
+      ctx.fillText("Each pair splits and the left and right sub-pixels show different images.", W / 2, 50);
     } else {
-      ctx.fillText("Each pair of sub-pixels shows the same color, acting as one pixel", W / 2, 50);
+      ctx.fillText("Each pair of sub-pixels shows the same color, acting as one pixel.", W / 2, 50);
     }
 
     // Dark screen mask behind the grid (gives gaps a real-screen look)
@@ -612,9 +630,9 @@ function initPixelDemo() {
     ctx.font = "italic 12px 'Source Sans 3', sans-serif";
     ctx.textAlign = "center";
     if (is3D) {
-      ctx.fillText("Each eye sees only its own sub-pixels, around 400 pixels per eye", W / 2, H - 18);
+      ctx.fillText("Each eye sees only its own sub-pixels, around 400 pixels per eye.", W / 2, H - 18);
     } else {
-      ctx.fillText("800 sub-pixels paired into 400 effective pixels", W / 2, H - 18);
+      ctx.fillText("800 sub-pixels paired into 400 effective pixels.", W / 2, H - 18);
     }
     ctx.textAlign = "left";
   }
